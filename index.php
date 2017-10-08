@@ -39,11 +39,11 @@ if (isset($_POST['change_requested']))
 		$sql = 'INSERT INTO requests SET
 		change_requested = :change_requested,
 		requester = :requester,
-		ident_to_change = :ident_to_change;
+		ident_to_change = :ident_to_change';
 	$s = $pdo->prepare($sql);
 	$s->bindValue(':change_requested', $_POST['change_requested']);
 	$s->bindValue(':requester', $_POST['requester']);
-	$->bindValue(':ident_to_change', $_POST['ident_to_change']);
+	$s->bindValue(':ident_to_change', $_POST['ident_to_change']);
 	$s->execute();
 	}
 	catch (PDOException $e)

@@ -1,24 +1,62 @@
 <?php
-try
+if (get_magic_quotes_gpc())
 {
-	$pdo = new PDO('mysql:host=localhost;dbname=change_tkts', 'ticketsuser','test');
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$pdo->exec('SET NAMES "utf8"');
-
+	$process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
+	while (list($key, $val) = each($process))
+	{
+		foreach ($val as $k =>$v)
+		{
+			unset($process[$key][$k]);
+			if (is_array($v))
+			{
+				$process[$key][stripslashes($k)] = $v;
+				$process[] =&$process[$key][stripslashes($v)];
+			}
+			else
+			{
+				$process[$key][stripslashes($k)] = stripslashes($v);
+			}
+		}
+	}
+	unset($process);
 }
-catch (PDOException $e)
+include 'connect.php';
+if (isset($_GET['addticket']))
 {
-	$output = 'Unable to connect to the database server: ' .
-	$e->getMessage();
-	include 'output.html.php';
+	include 'form.html.php';
 	exit();
 }
+
+
+
 $output = 'Database connection established.';
 include 'output.html.php';
 
+if (isset($_POST['change_requested']))
+{
+	try
+	{
+		$sql = 'INSERT INTO requests SET
+		change_requested = :change_requested,
+		requester = :requester,
+		ident_to_change = :ident_to_change;
+	$s = $pdo->prepare($sql);
+	$s->bindValue(':change_requested', $_POST['change_requested']);
+	$s->bindValue(':requester', $_POST['requester']);
+	$->bindValue(':ident_to_change', $_POST['ident_to_change']);
+	$s->execute();
+	}
+	catch (PDOException $e)
+	{
+		$error = 'Error adding submitted request: ' . $e->getMessage();
+		include 'error.html.php';
+		exit();
+	}
+}
+
 try
 {
-	$sql = 'SELECT change_requested FROM requests';
+	$sql = 'SELECT request_no, requester, date_requested, ident_to_change,change_requested FROM requests';
 	$result = $pdo->query($sql);
 }
 catch (PDOException $e)
@@ -30,7 +68,8 @@ catch (PDOException $e)
 
 while ($row = $result->fetch())
 {
-	$requests[] = $row['change_requested'];
+	$requests[] = $row['request_no'].'   '.$row['requester'].'....'.date('d/m/Y',strtotime($row['date_requested']))."\n".$row['ident_to_change'].'----'.$row['change_requested'];
+
 
 }
 include 'tickets.html.php';

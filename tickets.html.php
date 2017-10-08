@@ -9,7 +9,7 @@
   	<p>Here are all the current change requests:</p>
     <?php	foreach ($requests as $request): ?>
     <blockquote>
-    	<p><?php echo htmlspecialchars($request, ENT_QUOTES, 'UTF-8');
+    	<p><?php echo nl2br(htmlspecialchars($request, ENT_QUOTES, 'UTF-8'));
     	?>
     </p>
 
